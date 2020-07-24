@@ -5,6 +5,8 @@
 #OKKIO: this script causes a memory leak... used ram increases with time!!! For this reason split the runs in bunches of ~50k events (~10% memory usage at the end)
 #PS: di solito viene  lanciato da lanciaReadRecon.py
 
+#PS2:  source set_vars.sh  prima eseguire 
+ 
 
 
 from __future__ import print_function, division
