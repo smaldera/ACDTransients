@@ -1,6 +1,14 @@
 # ACDTransients
 
-CREARE ISTOGRAMMI RATES:
+
+repositiry for stuff related to search of transients with ACD
+
+
+
+
+
+
+#CREARE ISTOGRAMMI RATES:
 
 1) leggere file recon (a slac):
 
@@ -25,15 +33,14 @@ Ogni file root creato contiene un TTree (chiamato myTree) in cui per ogni evento
 
   python  makeReconRates.py --listFile fileList --binning 1 --outfile out.root --t0 0 --acdSizesFile ACD_tiles_size2.txt 
 
-# fileList e' l'elendo dei files generati da lanciaReadRecon.py
-# NB, la lista deve essere ordinata! (se  no la funzione get_time0_last non funziona... sarebbe da cambiare )
-# es: ls outAcdReconRates_*_?_*.root >fileList
-#     ls outAcdReconRates_*_??_*.root >>fileList
+ fileList e' l'elendo dei files generati da lanciaReadRecon.py
+ NB, la lista deve essere ordinata! (se  no la funzione get_time0_last non funziona... sarebbe da cambiare )
+ es: ls outAcdReconRates_*_?_*.root >fileList
+     ls outAcdReconRates_*_??_*.root >>fileList
 
 
 
-
-########################
+============================
 
 fig_Acdrecon.py -> plotta (root) i rates salvati nel file generato da makeReconRates.py
                  (il nome del file e' hardcoded per ora)
