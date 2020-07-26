@@ -160,20 +160,9 @@ t0=9
 tf=20
 
 
-
-
-#files=['grb_160821857_bin02_t0.root'] #???
-
-
-
-
-
-#base_dir='/home/maldera/FERMI/code/plotAcdRates/'
 filename=base_dir+files[0]
 
-
 eval_time=t0+(tf-t0)/2.
-
 
 f=ROOT.TFile(filename,'read')
 histos=get_histos(f)
@@ -264,7 +253,6 @@ s_yNeg= integral[9]
 
 
 
-# OKKIO, ho scambito gli angoli!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 print ("\n \n s_z=",integral[5]," angle=",angleZ, " s_corr= ",sZ )
 print ("s_xPos=",s_xPos," angle=",angleXpos, " s_corr= ",s_xPos/  np.cos(angleXpos*ROOT.TMath.DegToRad() ) )
 print ("s_xNeg=",s_xNeg," angle=",angleXneg , " s_corr= ",s_xNeg/  np.cos(angleXneg*ROOT.TMath.DegToRad() )  )
