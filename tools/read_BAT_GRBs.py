@@ -21,7 +21,8 @@ def dataCat_string(start,stop, group):
 	#dataPath_old='/'
 
 	if start<459947003:
-          dataPath='/Data/Flight/Reprocess/P301'   # reprocess
+          dataPath='/Data/Flight/Reprocess/P300'   # reprocess
+  
 
         cmd="/afs/slac.stanford.edu/u/gl/glast/datacatalog/prod/datacat find --group "+group+" --show-non-ok-locations --filter nMetStart<"+str(start)+"&&nMetStop>="+str(stop)+" "+dataPath 
 
@@ -149,6 +150,11 @@ if __name__ == "__main__":
 	 stop=ll[i]['stop']
 	 start=ll[i]['start']
 	 grb_name=ll[i]['grb_name']
+
+
+	 if met< 236563201:
+		print("before LAT launch! skipping.... ") 
+		continue 
 	 
 	 print("========>>> ",grb_name, "met=",met," start =",start," stop=",stop)
 	 search_runs(grb_name,met,fout,fout_recon,start, stop)     
