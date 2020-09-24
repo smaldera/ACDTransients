@@ -2,13 +2,13 @@ from __future__ import print_function
 import subprocess
 
 
-#read GRB list (at the monet from swift-BAT, but could add others), finds the corresponding files (merit and recon)
-# produces two files:
-# grb_runList_merit.txt: ( conenet: GRB_name, met, merit_files)
-# grb_runList_recon.txt: ( conenet: GRB_name,  recon_files)                                                                                    
+#reads GRB list (at the moment only  from swift-BAT, but could add others), finds the corresponding files (merit and recon)
+# and writes them in two files:
+# grb_runList_merit.txt: ( content: GRB_name, trigger_met, merit_files)
+# grb_runList_recon.txt: ( content: GRB_name,  recon_files)                                                                                    
 
-# search for runs containing trigger-T100start, trigger+T100stop (could be more than 1)
-# filenames are hardcoded... 
+# search for runs containing trigger_met-T100start, trigger_met+T100stop (in some cases we need two runs)
+#(filenames are hardcoded... )
 
 
 
