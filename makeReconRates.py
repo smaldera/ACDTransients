@@ -13,12 +13,16 @@
 # es: ls outAcdReconRates_*_?_*.root >fileList
 #     ls outAcdReconRates_*_??_*.root >>fileList
 
+# 2 Nov 2020: crea un file chiamato "lockfile.txt" nella cartella di  outout (passata con l'opzione --outDir)
+
+
 
 from __future__ import print_function, division
 import ROOT
 import numpy as np
 import datetime
 import time as tt
+import subprocess
 
 dict_tileSize={}
 
@@ -260,6 +264,11 @@ if __name__ == '__main__':
     parser.add_argument('--acdSizesFile', type=str, default='ACD_tiles_size2.txt',              help = 'file with acd tiles area')
     parser.add_argument('--t0', type=float, default=0.,              help = ' t0  ')
 
+
+    parser.add_argument('--outDir', type=str,  help='the output directory')
+
+
+
     args = parser.parse_args()
 
     fileSizes=args.acdSizesFile
@@ -277,8 +286,13 @@ if __name__ == '__main__':
     print ('t0=',t0)
     
     
-    do_work(fileSizes, outFileName ,listFile, binning,t0)
     
 
+
+    do_work(fileSizes, outFileName ,listFile, binning,t0)
+    
+    lockfilename=args.outDir+'/lockfile.txt'
+    cmd='rm -f '+lockfilename
+    subprocess.call(cmd,shell=True)
 
     print("... done, bye bye")
