@@ -17,7 +17,8 @@ import os
 import numpy as np
 import gc
 
-from multiprocessing import Process, Queue
+#from multiprocessing import Process, Queue
+import subprocess
 
 sys.path.append('/u/gl/maldera/meritUtils/python/')
 
@@ -42,6 +43,8 @@ if __name__ == '__main__':
 
     parser.add_argument('--outRootFile', type=str,  help='the output root file', required=True)
 
+    parser.add_argument('--outDir', type=str,  help='the output directory')
+
 
 
     parser.add_argument('--first', type=int,  help='first event', required=True)
@@ -53,7 +56,12 @@ if __name__ == '__main__':
 
     ReconFilePath=args.reconFile  
     meritFilePath=args.meritFile 
+    first=args.first
+    last=args.last
 
+    lockfilename=args.outDir+'/lockfile_'+str(first)+'-'+str(last)
+    cmd='echo aaa >'+lockfilename
+    subprocess.call(cmd,shell=True)
 
     r = pReconInterface(ReconFilePath,meritFilePath)
 
@@ -70,7 +78,8 @@ if __name__ == '__main__':
 
     #acdHit_acdtile=np.array([0]*89,'d')
     acdE_acdtile=np.array([0]*89,'d')
-
+    gltGemEngine=np.array([0],dtype='int32')
+    gltGemSummary=np.array([0], dtype='int32')
 
     outFile_name=args.outRootFile
 
@@ -81,24 +90,27 @@ if __name__ == '__main__':
     mytree.Branch('time',time,'time/d')
    # mytree.Branch('acdHit_acdtile',acdHit_acdtile,'acdHit_acdtile[89]/d')
     mytree.Branch('acdE_acdtile',acdE_acdtile,'acdE_acdtile[89]/d')
+    mytree.Branch('gltGemEngine',gltGemEngine,'gltGemEngine/I')
+    mytree.Branch('gltGemSummary',gltGemSummary,'gltGemSummary/I')
 
-
-    first=args.first
-    last=args.last
+   
 
         
 
     for entry  in range (first, last):
+    #for entry  in range (0, 1000):
 
+    
     
     
         r.getEntry(entry)
         
         # same cut as in DQM -> select phisical envets (no ROI, no periodic, no exteral no sollecited?)
         gemSummary=r.getMeritValue('GltGemSummary')
-        if (int(gemSummary)&30)==0:
-            continue
-
+        gltGemEngine=r.getMeritValue('GltGemEngine')
+        #if (int(gemSummary)&30)==0:
+        #    continue
+        #print("gltGemEngine=", gltGemEngine)    
 
         acdRecon = r.getAcdRecon()
    
@@ -128,13 +140,16 @@ if __name__ == '__main__':
 
             #slow signal (pha)
             #Veto threshold is 0.45MIPs, hit threshold is 0.01 MIPs
-            #pulseHeight = 0.5*(hit.getMips(0) + hit.getMips(1))
-            #pulseHeight2 = hit.getMips()
-        
+            pulseHeight = 0.5*(hit.getMips(0) + hit.getMips(1))
+            pulseHeight2 = hit.getMips()
             tileEnergy= hit.getTileEnergy()
         
         
+            #print("PHA=",pulseHeight,"  PHA2=",pulseHeight2," tileE= ",tileEnergy)
+
             #acdHit_acdtile[tileId]=1.
+          
+
             acdE_acdtile[tileId]=tileEnergy
 
             del hit
@@ -160,6 +175,8 @@ if __name__ == '__main__':
     mytree.Write()
     outRootFile.Close()
 
+    cmd='rm -f '+lockfilename
+    subprocess.call(cmd,shell=True)
 
-
+    
     

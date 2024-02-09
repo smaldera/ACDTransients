@@ -20,7 +20,11 @@ import numpy as np
 import datetime
 import time as tt
 
+from lib.rates_stuff import *
+
 dict_tileSize={}
+
+
 
 def get_time0_last(tree):
 
@@ -37,15 +41,6 @@ def get_time0_last(tree):
      return time0,timeLast
 
 
-def fill_dictSizes(inFileName):
-
-     f=open(inFileName,"r")
-
-     for line in f:
-          splitted_line=line.split()
-          tile=int(splitted_line[0])
-          area=float(splitted_line[1])
-          dict_tileSize[tile]=area
 
 
 
@@ -60,11 +55,14 @@ def mediaSides(hist_dict, identityFunc ):
      #hist_top.Sumw2()
 
      n=0.
+     sum_area=0.
      for tileId in range (64, 88+1):
           hist_top.Add(hist_dict[tileId])
           n=n+1.
-
+          sum_area=sum_area+1./dict_tileSize[tileId]
+          
      hist_top.Divide(identityFunc, n  )        
+     #hist_top.Divide(identityFunc, sum_area  )        
 
 
      #X+:
@@ -74,11 +72,14 @@ def mediaSides(hist_dict, identityFunc ):
      hist_Xpos.Reset()
      #hist_top.Sumw2()
      n=0.
+     sum_area=0.
      for tileId in range (48, 63+1):
           hist_Xpos.Add(hist_dict[tileId])
           n=n+1.
-
-     hist_Xpos.Divide(identityFunc, n  )        
+          sum_area=sum_area+1./dict_tileSize[tileId]
+     hist_Xpos.Divide(identityFunc, n  )
+     #hist_Xpos.Divide(identityFunc, sum_area  )
+    
 
      #Xneg
      #32 and tileId <= 47:
@@ -88,11 +89,15 @@ def mediaSides(hist_dict, identityFunc ):
      hist_Xneg.Reset()
      #hist_top.Sumw2()
      n=0.
+     sum_area=0.
+     
      for tileId in range (32, 47+1):
           hist_Xneg.Add(hist_dict[tileId])
           n=n+1.
+          sum_area=sum_area+1./dict_tileSize[tileId]
 
      hist_Xneg.Divide(identityFunc, n  )  
+     #hist_Xneg.Divide(identityFunc,sum_area   )  
      
 
      #Y+:
@@ -102,12 +107,16 @@ def mediaSides(hist_dict, identityFunc ):
      hist_Ypos.Reset()
      #hist_top.Sumw2()
      n=0.
+     sum_area=0.
      #16 and tileId <=31
      for tileId in range (16, 31+1):
           hist_Ypos.Add(hist_dict[tileId])
           n=n+1.
+          sum_area=sum_area+1./dict_tileSize[tileId]
 
-     hist_Ypos.Divide(identityFunc, n  )        
+     hist_Ypos.Divide(identityFunc, n  )
+     #hist_Ypos.Divide(identityFunc, sum_area  )
+    
 
      #Yneg
      hist_Yneg=hist_dict[0].Clone()
@@ -116,12 +125,14 @@ def mediaSides(hist_dict, identityFunc ):
      hist_Yneg.Reset()
 
      n=0.
+     sum_area=0.
      #>= 0 and tileId<=15:
      for tileId in range (0, 15+1):
           hist_Yneg.Add(hist_dict[tileId])
           n=n+1.
-
+          sum_area=sum_area+1./dict_tileSize[tileId]
      hist_Yneg.Divide(identityFunc, n  )  
+     #hist_Yneg.Divide(identityFunc, sum_area  )  
 
      
 
@@ -133,26 +144,13 @@ def mediaSides(hist_dict, identityFunc ):
 
 
 
-def createTChain(nomeFileList, treeName):
 
-   chain=ROOT.TChain(treeName)  
-     
-   f=open(nomeFileList)
+
+
+
+def do_work(fileSizes, outFileName ,listFile, binning, t0,Ecut):
    
-   for line in f:
-        rootFile=line[0:-1]
-        print("Tchain- adding file: ",rootFile)
-        chain.Add(rootFile)
-
-
-   return chain     
-
-
-
-
-def do_work(fileSizes, outFileName ,listFile, binning, t0):
-   
-    fill_dictSizes(fileSizes)
+    #dict_tileSize=fill_dictSizes(fileSizes)
 
     outRootFile=ROOT.TFile(outFileName, 'recreate')
 
@@ -184,11 +182,19 @@ def do_work(fileSizes, outFileName ,listFile, binning, t0):
          hist_dict[tileID]=ROOT.TH1F(hist_name,hist_name,n_bins,time0-t0,timeLast-t0)
 
          string='time - '+str(t0)+' >> '+hist_name
-         #cut="acdE_acdtile["+str(tileID)+"] >0.04"  # cut E>0.04!!!!!!!!!!!!
-         cut="acdE_acdtile["+str(tileID)+"] >0"  
+         #cut="acdE_acdtile["+str(tileID)+"] >"+str(Ecut)  
+         #cut="(acdE_acdtile["+str(tileID)+"])*(acdE_acdtile["+str(tileID)+"] >"+str(Ecut)+")"  
+         #cut="(acdE_acdtile["+str(tileID)+"])*(acdE_acdtile["+str(tileID)+"] <0.1)"  # peso per energia con cut su Emax
+       #  cut="(acdE_acdtile["+str(tileID)+"]>0) && (acdE_acdtile["+str(tileID)+"] <0.1)"  # cut Emin e  su Emax
+         cut="(acdE_acdtile["+str(tileID)+"]>0.03) && (acdE_acdtile["+str(tileID)+"] <0.1)"  # cut Emin e  su Emax
+
+
+         
         
          print("cut",cut)
          myTree.Draw(string,cut,"goff")
+         #myTree.Project(string,cut)
+         
          hist_dict[tileID].Sumw2()
          hist_dict[tileID].Divide(identityFunc,binning*dict_tileSize[tileID]) 
          hist_dict[tileID].GetXaxis().SetTitle('met-'+str(t0)) 
@@ -259,6 +265,7 @@ if __name__ == '__main__':
     parser.add_argument('--outfile', type=str,  help='outrootfile ', default='out.root')
     parser.add_argument('--acdSizesFile', type=str, default='ACD_tiles_size2.txt',              help = 'file with acd tiles area')
     parser.add_argument('--t0', type=float, default=0.,              help = ' t0  ')
+    parser.add_argument('--Ecut', type=float, default=0.,              help = 'min Energy required to count a hit  (default=0)')
 
     args = parser.parse_args()
 
@@ -267,6 +274,7 @@ if __name__ == '__main__':
     listFile=args.listFile
     binning=args.binning
     t0=args.t0
+    Ecut=args.Ecut
 
     print("going to run with:   ")
     print("outFileName= ",outFileName)
@@ -276,8 +284,8 @@ if __name__ == '__main__':
     print("fileSizes= ",fileSizes)
     print ('t0=',t0)
     
-    
-    do_work(fileSizes, outFileName ,listFile, binning,t0)
+    dict_tileSize=fill_dictSizes(fileSizes)
+    do_work(fileSizes, outFileName ,listFile, binning,t0,Ecut)
     
 
 

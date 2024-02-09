@@ -32,17 +32,17 @@ def getNevents(meritFile):
 
 
 
-def lancia_readRecon(meritFile, reconFile, outFile, first,last,use_bsub):
+def lancia_readRecon(meritFile, reconFile, outFile, first,last,use_bsub,outDir):
     """
     """
     print("use_bsub=",use_bsub)
     
     if use_bsub==0:
-        cmd='python readReconAcd.py --reconFile '+reconFile+' --meritFile '+meritFile+' --outRootFile '+outFile+' --first '+ str(first)+' --last '+str(last)
+        cmd='python readReconAcd.py --reconFile '+reconFile+' --meritFile '+meritFile+' --outRootFile '+outFile+' --first '+ str(first)+' --last '+str(last)+ ' --outDir '+outDir
 
     else:
          outLogName=outFile[:-5]+'_out.txt'
-         cmd='bsub -W 68:00 -o '+outLogName+'  python readReconAcd.py --reconFile '+reconFile+' --meritFile '+meritFile+' --outRootFile '+outFile+' --first '+ str(first)+' --last '+str(last)
+         cmd='bsub -W 68:00 -o '+outLogName+'  python readReconAcd.py --reconFile '+reconFile+' --meritFile '+meritFile+' --outRootFile '+outFile+' --first '+ str(first)+' --last '+str(last) + ' --outDir '+outDir
 
     print('cmd= ',cmd)
     subprocess.call(cmd,shell=True) # qua lancia il sottoprocesso
@@ -97,4 +97,4 @@ if __name__ == '__main__':
         outRootFile=outFileName+str(i)+'_v4cut.root'
 
 
-        lancia_readRecon(meritFilePath, ReconFilePath, outRootFile, first,last, args.use_bsub)
+        lancia_readRecon(meritFilePath, ReconFilePath, outRootFile, first,last, args.use_bsub, args.outDir)

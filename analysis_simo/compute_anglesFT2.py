@@ -85,18 +85,26 @@ def computeAngles(ra_srg,dec_srg, z_ra ,z_dec, x_ra,x_dec):  # ra_srg,dec_srg sc
 
 
 
-   print ("X ra=",x_ra[0]," x dec =",x_dec[0] )
-   print ("Z ra=",z_ra[0]," z dec =",z_dec[0] )
- 
   
    deg2Rad=ROOT.TMath.DegToRad()
+   """
    ra_srg*= deg2Rad
    dec_srg*= deg2Rad
    z_ra*= deg2Rad
    z_dec*= deg2Rad
    x_ra*= deg2Rad
    x_dec*= deg2Rad
+   """
 
+   ra_srg  = ra_srg*deg2Rad
+   dec_srg=  dec_srg*deg2Rad
+   z_ra=     z_ra*deg2Rad
+   z_dec=    z_dec *deg2Rad
+   x_ra=     x_ra*deg2Rad
+   x_dec=    x_dec*deg2Rad
+
+
+   
    xneg_ra=x_ra+180.*ROOT.TMath.DegToRad()
    xneg_dec=-x_dec   
 
@@ -120,28 +128,30 @@ def computeAngles(ra_srg,dec_srg, z_ra ,z_dec, x_ra,x_dec):  # ra_srg,dec_srg sc
    y_ra= yAxis_spherical[2]
    y_dec=pi/2.-yAxis_spherical[1]
 
-   print ("y_ra=",y_ra)
+   #print ("y_ra=",y_ra)
    
    
    yneg_ra=y_ra+180.*ROOT.TMath.DegToRad()
    yneg_dec=-y_dec   
 
 
+   
+
    # test: asse negativo invertendo i le componenti cartesiane ( a la sarac)
-   yAxis_sphericalNEG=cartesian2spherical(-yAxis_cart[0],-yAxis_cart[1],-yAxis_cart[2])
-   yneg_ra2=yAxis_sphericalNEG[2]
-   yneg_dec2= pi/2.-yAxis_sphericalNEG[1]
+#   yAxis_sphericalNEG=cartesian2spherical(-yAxis_cart[0],-yAxis_cart[1],-yAxis_cart[2])
+#   yneg_ra2=yAxis_sphericalNEG[2]
+#   yneg_dec2= pi/2.-yAxis_sphericalNEG[1]
   
 
    #TEST: calcolo -y come XxZ
-   yNegAxis_cart=cross_product(xAxis_cart, zAxis_cart)  
-   yNegAxis_spherical=cartesian2spherical(yNegAxis_cart[0],yNegAxis_cart[1],yNegAxis_cart[2])
-   yneg_ra3=yNegAxis_spherical[2]
-   yneg_dec3= pi/2.-yNegAxis_spherical[1]
+#   yNegAxis_cart=cross_product(xAxis_cart, zAxis_cart)  
+#   yNegAxis_spherical=cartesian2spherical(yNegAxis_cart[0],yNegAxis_cart[1],yNegAxis_cart[2])
+#   yneg_ra3=yNegAxis_spherical[2]
+#   yneg_dec3= pi/2.-yNegAxis_spherical[1]
 
-   print("yNeg mio ra=",yneg_ra[1]," dec = ",yneg_dec[1])
-   print("yNeg sarac ra=",yneg_ra2[1]," dec = ",yneg_dec2[1])
-   print("yNeg XxZ ra=",yneg_ra3[1]," dec = ",yneg_dec3[1])
+   #print("yNeg mio ra=",yneg_ra[1]," dec = ",yneg_dec[1])
+   #print("yNeg sarac ra=",yneg_ra2[1]," dec = ",yneg_dec2[1])
+   #print("yNeg XxZ ra=",yneg_ra3[1]," dec = ",yneg_dec3[1])
    
    
    
@@ -154,6 +164,7 @@ def computeAngles(ra_srg,dec_srg, z_ra ,z_dec, x_ra,x_dec):  # ra_srg,dec_srg sc
 
 
    # some  checks: 
+   """
    cosXZ=cosAngle(x_ra, x_dec,z_ra,z_dec)
    print("TEST: ANGOLI XZ =",np.arccos(cosXZ[0:10])*ROOT.TMath.RadToDeg()  )
    
@@ -168,7 +179,7 @@ def computeAngles(ra_srg,dec_srg, z_ra ,z_dec, x_ra,x_dec):  # ra_srg,dec_srg sc
    
    cosYXneg=cosAngle(y_ra, y_dec,xneg_ra,xneg_dec)
    print("TEST:ANGOLI YXneg =",np.arccos(cosYXneg[0:10])*ROOT.TMath.RadToDeg()  )
-   
+   """
 
 
    
@@ -201,15 +212,22 @@ if __name__ == '__main__':
 
 
  #GRB 090510
-  baseDir='/home/maldera/FERMI/code/plotAcdRates/data/grbs/GRB_0905510/'
-  inFiles =[baseDir+'r0263605997_ft2.fit']
-  ra_srg=333.400
-  dec_srg=-26.767
+  #baseDir='/home/maldera/FERMI/code/plotAcdRates/data/grbs/GRB_0905510/'
+  #inFiles =[baseDir+'r0263605997_ft2.fit']
+  #ra_srg=333.400
+  #dec_srg=-26.767
   #### RA, Dec = 333.400, -26.767  (J2000)  LAT
-  t0=263607781
-  outRootfile_name=baseDir+'faces_angle_grb090510.root'
+  #t0=263607781
+  #outRootfile_name=baseDir+'faces_angle_grb090510.root'
   
-
+  #GRB 220307A
+  baseDir='/home/maldera/FERMI/code/plotAcdRates/data/grbs/GRB_230307A/'
+  inFiles =[baseDir+'r0699894574_ft2seconds.fit']
+  ra_srg=60.86
+  dec_srg=-75.38
+  t0=699896658
+  outRootfile_name=baseDir+'faces_angle_grb220307A.root'
+ 
 
 
   #SGR  
