@@ -16,6 +16,7 @@ import sys
 import os
 import numpy as np
 import gc
+import array as arr
 
 #from multiprocessing import Process, Queue
 import subprocess
@@ -62,8 +63,14 @@ if __name__ == '__main__':
     lockfilename=args.outDir+'/lockfile_'+str(first)+'-'+str(last)
     cmd='echo aaa >'+lockfilename
     subprocess.call(cmd,shell=True)
-
-    r = pReconInterface(ReconFilePath,meritFilePath)
+    r=[]
+    try:
+        r = pReconInterface(ReconFilePath,meritFilePath)
+    except:
+        print("exception in reading recon/merit files.... stop!  ")
+        cmd='rm -f '+lockfilename
+        subprocess.call(cmd,shell=True)
+        exit()
 
 
     numEvents = r.getEntries()
@@ -74,59 +81,49 @@ if __name__ == '__main__':
    # -time
    # -acd_tile_energy[]
    # -acd_hit_tile[]
-    time=np.array([0],'d')
+    #time=np.array([0],'d')
 
-    #acdHit_acdtile=np.array([0]*89,'d')
-    acdE_acdtile=np.array([0]*89,'d')
-    gltGemEngine=np.array([0],dtype='int32')
-    gltGemSummary=np.array([0], dtype='int32')
+    time=arr.array('d',[0])
+    acdE_acdtile=arr.array('d',[0.]*89)
+    gltGemEngine=arr.array('i' ,[0])
+    gltGemSummary=arr.array('d',[0])
+
+
 
     outFile_name=args.outRootFile
-
-
     outRootFile=ROOT.TFile(outFile_name,"recreate")
 
     mytree=ROOT.TTree('myTree','myTree')
     mytree.Branch('time',time,'time/d')
-   # mytree.Branch('acdHit_acdtile',acdHit_acdtile,'acdHit_acdtile[89]/d')
-    mytree.Branch('acdE_acdtile',acdE_acdtile,'acdE_acdtile[89]/d')
+    mytree.Branch('acdE_acdtile',acdE_acdtile,'acdE_acdtile[89]/D')
     mytree.Branch('gltGemEngine',gltGemEngine,'gltGemEngine/I')
-    mytree.Branch('gltGemSummary',gltGemSummary,'gltGemSummary/I')
+    mytree.Branch('gltGemSummary',gltGemSummary,'gltGemSummary/D')
 
-   
-
-        
+    n_ev=0
 
     for entry  in range (first, last):
-    #for entry  in range (0, 1000):
-
-    
-    
     
         r.getEntry(entry)
         
         # same cut as in DQM -> select phisical envets (no ROI, no periodic, no exteral no sollecited?)
-        gemSummary=r.getMeritValue('GltGemSummary')
-        gltGemEngine=r.getMeritValue('GltGemEngine')
-        #if (int(gemSummary)&30)==0:
-        #    continue
-        #print("gltGemEngine=", gltGemEngine)    
+        #if (int(gemSummary)&30)==0:                                                                                                                                              #    continue    
+        gltGemSummary[0]=r.getMeritValue('GltGemSummary')
+        gltGemEngine[0]=r.getMeritValue('GltGemEngine')
 
+           
         acdRecon = r.getAcdRecon()
-   
         hitCol=acdRecon.getHitCol()
         nAcdHits=hitCol.GetEntriesFast()
-        #print("collectionEntries=", nAcdHits)
+        #print("n_ev=",n_ev," collectionEntries=", nAcdHits," len(hitCol)=",len(hitCol))
     
         
 
         time[0]=r.getMeritValue('EvtElapsedTime')
-        
-        #azzera vettori acdHit e acdE
-        #acdHit_acdtile=acdHit_acdtile*0.
-        acdE_acdtile=acdE_acdtile*0.
-    
-    
+        #print ("type time[0]",type(time[0]))
+
+        #azzera vettore acdE
+        for i in range(0,len(acdE_acdtile)):
+                 acdE_acdtile[i]=0
 
     
         for i in range(nAcdHits):
@@ -140,17 +137,15 @@ if __name__ == '__main__':
 
             #slow signal (pha)
             #Veto threshold is 0.45MIPs, hit threshold is 0.01 MIPs
-            pulseHeight = 0.5*(hit.getMips(0) + hit.getMips(1))
-            pulseHeight2 = hit.getMips()
+            #pulseHeight = 0.5*(hit.getMips(0) + hit.getMips(1))
+            #pulseHeight2 = hit.getMips()
             tileEnergy= hit.getTileEnergy()
         
         
-            #print("PHA=",pulseHeight,"  PHA2=",pulseHeight2," tileE= ",tileEnergy)
-
-            #acdHit_acdtile[tileId]=1.
-          
+            #print("PHA=",pulseHeight,"  PHA2=",pulseHeight2," tileE= ",tileEnergy)         
 
             acdE_acdtile[tileId]=tileEnergy
+            #print ("tile=",tileId," E=",tileEnergy, "  time= ",time[0]," n_ev= ",n_ev)
 
             del hit
             #fast signal
@@ -158,14 +153,15 @@ if __name__ == '__main__':
             #triggerVetoBit_1 = ((hit.getFlags(1) >> 1) & 0x1)
         
         ################## end loop hits    
-
-
+            
         outRootFile.cd() 
         mytree.Fill() 
 
         if entry%1000 ==0:
             print("event=",entry)
-  
+        
+        n_ev+=1
+
 
             #    del hitCol
             #    del acdRecon
